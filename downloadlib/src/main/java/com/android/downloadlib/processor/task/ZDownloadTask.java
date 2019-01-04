@@ -107,6 +107,8 @@ public class ZDownloadTask {
 
     public void delete() {
         isDelete = true;
+        isPause = true;
+        mFileDownloadSize = 0;
         ZRxTimeUtils.timer(400, new ZRxTimeUtils.onRxTimeListener() {
             @Override
             public void onNext() {
@@ -230,6 +232,8 @@ public class ZDownloadTask {
         }
         if (isFinish){
             mFileDownloadSize = 0;
+            mDownloadTasks.clear();
+            isPause = true;
             File file = new File(info.filePath,info.fileName);
             if (file.exists()){
                 Log.d(TAG, "zsr --> 本地文件大小: "+file.length()+" 服务器文件大小: "+info.fileLength);

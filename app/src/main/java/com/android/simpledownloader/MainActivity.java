@@ -19,6 +19,9 @@ import com.android.downloadlib.entrance.ZDloader;
 import com.android.downloadlib.processor.callback.ZupdateListener;
 import com.android.downloadlib.processor.entiry.ZDownloadBean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements ZupdateListener, View.OnClickListener {
     private static final String TAG = "MainActivity";
     private static final String URL = "http://172.16.29.103:8989/icon/test.rar";
@@ -41,17 +44,20 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
         }else{
             download();
         }
-
     }
 
     private void download(){
-        ZDloader.with(MainActivity.this)
-                .url(URL)
-                .threadCount(3)
-                .reFreshTime(1000)
-                .allowBackDownload(true)
-                .listener(MainActivity.this)
-                .download();
+        //如果不是正在下载，则让它继续下载即可
+        if (!ZDloader.isDownloading()) {
+            ZDloader.with(MainActivity.this)
+                    .url(URL)
+                    .threadCount(3)
+                    .reFreshTime(1000)
+                    .allowBackDownload(true)
+                    .listener(MainActivity.this)
+                    .download();
+        }
+
     }
 
     @Override
@@ -63,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
                         permissions[0]);
                 if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     download();
+                    Log.d(TAG, "zsr --> onRequestPermissionsResult: ");
                 }else{
                     Toast.makeText(this, "权限申请被拒绝", Toast.LENGTH_SHORT).show();
                 }
@@ -103,5 +110,39 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
     public void deleteClick(View view) {
         mTextView.setText("已删除");
         ZDloader.deleteDownload();
+    }
+
+    //int[] nums = new int[]{1,2,3,1,2,1};
+    public int removeDuplicates(int[] nums) {
+
+        StringBuilder sb = new StringBuilder();
+        int count = nums.length;
+        for (int i = 0; i < count; i++) {
+            int num1 = nums[i];
+            for (int j = 0; j < count; j++) {
+                int num2 = nums[j];
+                Log.d(TAG, "zsr --> removeDuplicates: "+num1+" "+num2);
+                if (i != j && num1 == num2 ){
+                    //记录重复的index
+                    Log.d(TAG, "zsr --> 重复: "+j);
+                    sb.append(j);
+                    break;
+                }
+
+            }
+        }
+        List<Integer> lists = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            int index = sb.charAt(i);
+            if (i == index){
+                continue;
+            }else{
+                lists.add(nums[i]);
+            }
+        }
+        Integer[] copyNums = new Integer[lists.size()];
+        lists.toArray(copyNums);
+        Log.d(TAG, "zsr --> removeDuplicates: "+copyNums.toString());
+        return copyNums.length;
     }
 }
