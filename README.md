@@ -21,9 +21,9 @@ allprojects {
 }
 ```
 然后把 ZDloader 写上：
-
+[![](https://jitpack.io/v/LillteZheng/ZDownLoader.svg)](https://jitpack.io/#LillteZheng/ZDownLoader)
 ```
-implementation 'com.github.LillteZheng:ZDownLoader:1.3'
+implementation 'com.github.LillteZheng:ZDownLoader:lastest'
 ```
 ## 一、下载文件
 ```
