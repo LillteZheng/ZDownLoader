@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.format.Formatter;
+import android.util.Log;
 
 import com.android.ZLoadService;
 import com.android.downloadlib.NetErrorStatus;
 import com.android.downloadlib.entrance.ZDloader;
+import com.android.downloadlib.processor.callback.ZupdateListener;
 import com.android.downloadlib.processor.entiry.ZDownloadBean;
 import com.android.downloadlib.processor.entiry.ZloadInfo;
 import com.android.downloadlib.processor.server.ZHttpCreate;
@@ -19,6 +21,7 @@ import com.android.downloadlib.utils.ZStorageUtils;
 
 import io.reactivex.observers.ResourceObserver;
 import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 
 /**
@@ -48,6 +51,9 @@ public class ZDownloadManager  {
         mServer = ZHttpCreate.getService();
     }
 
+    public  void updateListener(ZupdateListener listener){
+        mZloadInfo.listener = listener;
+    }
     /**
      * 检查是否可以更新
      *
@@ -70,6 +76,7 @@ public class ZDownloadManager  {
                         @Override
                         public void onNext(ResponseBody responseBody) {
                             long fileLength = responseBody.contentLength();
+                            Log.d(TAG, "zsr onNext: "+fileLength);
                             if (fileLength > ZStorageUtils.getAvailDiskSize(mZloadInfo.filePath)) {
                                 mZloadInfo.listener.onError(NetErrorStatus.CACHE_NOT_ENOUGH, "Cache not enough");
                             } else {
@@ -95,6 +102,7 @@ public class ZDownloadManager  {
 
                         }
                     });
+
 
         }
     }
@@ -128,6 +136,7 @@ public class ZDownloadManager  {
                                 long size = bean.downloadSize - mLastSize;
                                 bean.speed = Formatter.formatFileSize(mZloadInfo.context,size)+"/s";
                                 mZloadInfo.listener.onDownloading(bean);
+                                Log.d(TAG, "zsr run: "+bean.progress);
                                 mLastSize = bean.downloadSize;
                             }
                         }
@@ -148,7 +157,7 @@ public class ZDownloadManager  {
 
             }
         });
-
+/*
         ZRxTimeUtils.interval(2000, new ZRxTimeUtils.onRxTimeListener() {
             @Override
             public void onNext() {
@@ -156,7 +165,7 @@ public class ZDownloadManager  {
                     mDownloadTask.saveDb();
                 }
             }
-        });
+        });*/
     }
 
     public void pauseDownload() {

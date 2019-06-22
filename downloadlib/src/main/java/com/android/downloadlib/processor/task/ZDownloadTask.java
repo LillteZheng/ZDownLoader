@@ -65,6 +65,12 @@ public class ZDownloadTask {
                 mDownloadTasks.add(downloadthread);
             }
         }else {
+            //新任务，先删除数据库和本地文件
+            ZDBManager.getInstance().deleteAll();
+            File file = new File(mZloadInfo.filePath,mZloadInfo.fileName);
+            if (file.exists()){
+                file.delete();
+            }
             for (int i = 0; i < info.threadCount; i++) {
                 long start = i * blocksize;
                 long end = (i + 1) * blocksize - 1;
@@ -100,9 +106,9 @@ public class ZDownloadTask {
 
 
     public void saveDb(){
-        for (DownloadThread downloadThread : mDownloadTasks) {
+       /* for (DownloadThread downloadThread : mDownloadTasks) {
             downloadThread.isSave = true;
-        }
+        }*/
     }
 
     public void delete() {
@@ -133,7 +139,7 @@ public class ZDownloadTask {
     class DownloadThread extends Thread{
 
         boolean isTheadFinished = false;
-        boolean isSave = false;
+      //  boolean isSave = false;
         ZThreadBean bean;
         ZloadInfo info;
         public DownloadThread(ZThreadBean bean, ZloadInfo info){
@@ -178,19 +184,17 @@ public class ZDownloadTask {
                             ZDBManager.getInstance().saveOrUpdate(bean);
                             return;
                         }
-                        if (isSave){
+                        //不自动保存
+                       /* if (isSave){
                           //  Log.d(TAG, "zsr --> 我保存啦: "+bean.toString());
                             ZDBManager.getInstance().saveOrUpdate(bean);
                             isSave = false;
-                        }
-
-
-
+                        }*/
                     }
                     isTheadFinished = true;
                 }else{
                     mFileDownloadSize = 0;
-                    mListener.error(NetErrorStatus.RESPONSE_IS_NULL,"response.body() == null");
+                    mListener.error(NetErrorStatus.RESPONSE_IS_NULL,"file break");
                     delete();
                 }
 

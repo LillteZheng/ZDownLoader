@@ -2,6 +2,7 @@ package com.android.downloadlib.entrance;
 
 import android.content.Context;
 
+import com.android.downloadlib.processor.callback.ZupdateListener;
 import com.android.downloadlib.processor.db.ZDBManager;
 import com.android.downloadlib.processor.task.ZDownloadManager;
 
@@ -21,7 +22,7 @@ public class  ZDloader {
     private static RequestManager mRequestManager;
     public static RequestManager with(Context context){
         mRequestManager = new RequestManager().with(context);
-        ZDBManager.getInstance().config(context);
+        ZDBManager.getInstance().config(context.getApplicationContext());
         return new RequestManager().with(context);
     }
     
@@ -47,6 +48,8 @@ public class  ZDloader {
        return ZDownloadManager.getInstance().isDownloading();
     }
 
-
+    public static void updateListener(ZupdateListener listener){
+        ZDownloadManager.getInstance().updateListener(listener);
+    }
 
 }

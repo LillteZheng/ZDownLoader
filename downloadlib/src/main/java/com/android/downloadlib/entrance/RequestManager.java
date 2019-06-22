@@ -5,9 +5,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
+import com.android.downloadlib.processor.callback.ZJsonListener;
 import com.android.downloadlib.processor.callback.ZupdateListener;
 import com.android.downloadlib.processor.entiry.ZloadInfo;
 import com.android.downloadlib.processor.task.ZDownloadManager;
+import com.android.downloadlib.processor.task.ZJsonTask;
 import com.android.downloadlib.widght.InvisiabelFragment;
 
 
@@ -54,6 +56,8 @@ public class RequestManager {
 
 
 
+
+
     public RequestManager reFreshTime(long reFreshTime) {
         mInfo.reFreshTime = reFreshTime;
         return this;
@@ -75,6 +79,22 @@ public class RequestManager {
         mInfo = new CheckParams().check(mInfo);
         rigister(mInfo);
         ZDownloadManager.getInstance().checkAndDownload(mInfo);
+    }
+
+    public RequestManager jsonUrl(String jsonurl){
+        mInfo.jsonUrl = jsonurl;
+        return this;
+    }
+
+
+    public <T> RequestManager jsonListener(ZJsonListener listener){
+        mInfo.jsonListener = listener;
+        return this;
+    }
+    public void parseJson(){
+        mInfo = new CheckParams().checkJsonUrl(mInfo);
+        //开始校验json
+        new ZJsonTask(mInfo);
     }
 
 

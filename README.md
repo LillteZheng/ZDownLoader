@@ -7,6 +7,10 @@
 
 [原理请参考这篇博客](https://blog.csdn.net/u011418943/article/details/85760069)
 
+更新如下
+- 1.4 : 完善再次进入不会更新UI问题，并添加 json 解析
+- 1.3 : 基本完成功能
+
 ## 配置
 ```
 allprojects {
@@ -21,21 +25,44 @@ allprojects {
 ```
 implementation 'com.github.LillteZheng:ZDownLoader:1.3'
 ```
-ZDloader 的下载配置非常简单：
+## 一、下载文件
 ```
 //如果不是正在下载，则让它继续下载即可
 if (!ZDloader.isDownloading()) {
     ZDloader.with(MainActivity.this)
             .url(URL)
-            //路径不写默认在Environment.getExternalStorageDirectory().getAbsolutePath()/ZDloader
-            .savePath(Environment.getExternalStorageDirectory().getAbsolutePath())
-            .fileName("test.apk")  //文件名不写，则默认以链接的后缀名当名字
-            .threadCount(3)  //线程个数
-            .reFreshTime(1000) //刷新时间，不低于200ms
-            .allowBackDownload(true) //是否允许后台下载
+            .threadCount(3)
+            .reFreshTime(1000)
+            .allowBackDownload(true)
             .listener(MainActivity.this)
             .download();
+}else {
+    //否则，则更新接口，让它可以继续显示UI
+    ZDloader.updateListener(MainActivity.this);
 }
 ```
-## 效果图
+## 二、解析 Json
+通过在ZJsonListener的泛型和添加 class 就能自动解析成 Bean 了
+```
+ZDloader.with(this)
+        .jsonUrl(JSONURL)
+        .jsonListener(new ZJsonListener<FileJson>(FileJson.class) {
+            @Override
+            public void fail(String errorMsg) {
+                super.fail(errorMsg);
+                Log.d(TAG, "zsr fail: "+errorMsg);
+            }
+
+            @Override
+            public void response(FileJson data) {
+                super.response(data);
+                Log.d(TAG, "zsr response: "+data.toString());
+            }
+        }).parseJson();
+```
+Json 解析如下：
+```
+zsr response: FileJson{name='zhengsr', url='http://192.168.1.103:9090/new/兰州拉面.mp4'}
+```
+## 下载效果图
 ![下载任务](https://img-blog.csdnimg.cn/20190104091200408.gif)

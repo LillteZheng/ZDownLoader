@@ -29,7 +29,7 @@ public class ZHttpCreate {
      */
     public static ZHttpServer getService(){
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://www.baidu.com/")
+                .baseUrl("http://localhost/")
                 //转字符串
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())

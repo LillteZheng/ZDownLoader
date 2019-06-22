@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.android.downloadlib.entrance.ZDloader;
+import com.android.downloadlib.processor.db.ZDBManager;
 
 /**
  * Created by zhengshaorui

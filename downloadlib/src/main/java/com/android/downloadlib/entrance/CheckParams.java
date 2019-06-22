@@ -49,12 +49,25 @@ public class CheckParams {
         if (TextUtils.isEmpty(info.fileName)){
             info.fileName = info.url.substring(info.url.lastIndexOf("/")+1);
         }
-        if (info.reFreshTime < 200){
-            info.reFreshTime = 200;
+        //默认刷新时间1s
+        if (info.reFreshTime < 1000){
+            info.reFreshTime = 1000;
         }
         if (info.listener == null){
             throw new RuntimeException("you need register listener to get network status");
         }
+        return info;
+    }
+
+    public ZloadInfo checkJsonUrl(ZloadInfo info){
+        //url肯定是必须的
+        if (TextUtils.isEmpty(info.jsonUrl)){
+            throw new RuntimeException("jsonUrl can not be null");
+        }
+        if (info.jsonListener == null){
+            throw new RuntimeException("you need register jsonListener to get network status");
+        }
+
         return info;
     }
 
