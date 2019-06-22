@@ -16,15 +16,16 @@ import android.widget.Toast;
 
 import com.android.downloadlib.NetErrorStatus;
 import com.android.downloadlib.entrance.ZDloader;
+import com.android.downloadlib.processor.callback.ZJsonListener;
 import com.android.downloadlib.processor.callback.ZupdateListener;
 import com.android.downloadlib.processor.entiry.ZDownloadBean;
 
-import java.util.ArrayList;
-import java.util.List;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements ZupdateListener, View.OnClickListener {
     private static final String TAG = "MainActivity";
-    private static final String URL = "http://172.16.29.103:8989/icon/test.rar";
+    private static final String URL = "https://img-blog.csdnimg.cn/20190104091200408.gif";
+    private static final String JSONURL = "http://192.168.1.103:9090/new/update.json";
     private TextView mTextView;
     private Button mDownloadBtn;
     private TextView mDownloadTv;
@@ -44,6 +45,25 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
         }else{
             download();
         }
+
+        /**
+         * 解析json
+         */
+        ZDloader.with(this)
+                .jsonUrl(JSONURL)
+                .jsonListener(new ZJsonListener<FileJson>(FileJson.class) {
+                    @Override
+                    public void fail(String errorMsg) {
+                        super.fail(errorMsg);
+                        Log.d(TAG, "zsr fail: "+errorMsg);
+                    }
+
+                    @Override
+                    public void response(FileJson data) {
+                        super.response(data);
+                        Log.d(TAG, "zsr response: "+data.toString());
+                    }
+                }).parseJson();
     }
 
     private void download(){
@@ -56,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
                     .allowBackDownload(true)
                     .listener(MainActivity.this)
                     .download();
+        }else {
+            //否则，则更新接口，让它可以继续显示UI
+            ZDloader.updateListener(MainActivity.this);
         }
 
     }
@@ -94,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
         mTextView.setText(getString(R.string.download_progress,bean.progress+""));
         String nowSize = Formatter.formatFileSize(MainActivity.this,bean.downloadSize);
         String totalSize = Formatter.formatFileSize(MainActivity.this,bean.totalSize);
-        mDownloadTv.setText("下载速度: "+bean.speed+"                       "+nowSize+" / "+totalSize);
+        mDownloadTv.setText("下载速度: "+bean.speed+"\t\t"+nowSize+" / "+totalSize);
     }
 
     @Override
@@ -112,37 +135,5 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
         ZDloader.deleteDownload();
     }
 
-    //int[] nums = new int[]{1,2,3,1,2,1};
-    public int removeDuplicates(int[] nums) {
 
-        StringBuilder sb = new StringBuilder();
-        int count = nums.length;
-        for (int i = 0; i < count; i++) {
-            int num1 = nums[i];
-            for (int j = 0; j < count; j++) {
-                int num2 = nums[j];
-                Log.d(TAG, "zsr --> removeDuplicates: "+num1+" "+num2);
-                if (i != j && num1 == num2 ){
-                    //记录重复的index
-                    Log.d(TAG, "zsr --> 重复: "+j);
-                    sb.append(j);
-                    break;
-                }
-
-            }
-        }
-        List<Integer> lists = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            int index = sb.charAt(i);
-            if (i == index){
-                continue;
-            }else{
-                lists.add(nums[i]);
-            }
-        }
-        Integer[] copyNums = new Integer[lists.size()];
-        lists.toArray(copyNums);
-        Log.d(TAG, "zsr --> removeDuplicates: "+copyNums.toString());
-        return copyNums.length;
-    }
 }
