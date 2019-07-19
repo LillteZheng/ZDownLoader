@@ -40,9 +40,6 @@ public class ZLoadService extends Service {
                 case ZDloader.RESTART:
                     ZDloader.reStartDownload();
                     break;
-                case ZDloader.STOPSELF :
-                    stopSelf();
-                    break;
                 default :
                     break;
 

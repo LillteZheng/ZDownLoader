@@ -133,7 +133,7 @@ public class RequestManager {
                 @Override
                 public void onStop() {
                     if (!info.allowBackDownload){
-                        ZDownloadManager.getInstance().deleteDownload();
+                        ZDownloadManager.getInstance().deleteDownload(true);
                     }
                 }
 

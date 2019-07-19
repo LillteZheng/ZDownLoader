@@ -20,7 +20,6 @@ import com.android.downloadlib.processor.callback.ZJsonListener;
 import com.android.downloadlib.processor.callback.ZupdateListener;
 import com.android.downloadlib.processor.entiry.ZDownloadBean;
 
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements ZupdateListener, View.OnClickListener {
     private static final String TAG = "MainActivity";
@@ -97,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
                     Toast.makeText(this, "权限申请被拒绝", Toast.LENGTH_SHORT).show();
                 }
                 break;
+            default:
+                break;
         }
     }
 
@@ -110,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
     @Override
     public void onError(NetErrorStatus errorStatus, String errorMsg) {
         Log.d(TAG, "zsr --> onError: "+errorMsg);
+        mTextView.setText(errorMsg);
     }
 
     @Override
@@ -131,8 +133,10 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
         }
     }
     public void deleteClick(View view) {
-        mTextView.setText("已删除");
-        ZDloader.deleteDownload();
+       ZDloader.deleteDownload(true);
+
+       mTextView.setText("已删除");
+
     }
 
 

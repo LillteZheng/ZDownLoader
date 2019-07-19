@@ -17,7 +17,6 @@ public class  ZDloader {
     public static final String START = "START";
     public static final String PAUSE = "PAUSE";
     public static final String RESTART = "RESTART";
-    public static final String STOPSELF = "STOPSELF";
     private static final String TAG = "ZDloader";
     private static RequestManager mRequestManager;
     public static RequestManager with(Context context){
@@ -41,8 +40,9 @@ public class  ZDloader {
         ZDownloadManager.getInstance().startDownload();
     }
 
-    public static void deleteDownload(){
-        ZDownloadManager.getInstance().deleteDownload();
+
+    public static void deleteDownload(boolean deleteAll){
+        ZDownloadManager.getInstance().deleteDownload(deleteAll);
     }
     public static boolean isDownloading(){
        return ZDownloadManager.getInstance().isDownloading();

@@ -39,6 +39,8 @@ public class ZDownloadManager  {
     private ZloadInfo mZloadInfo;
     static Handler sHandler = new Handler(Looper.getMainLooper());
 
+
+
     private static class Holder {
         static final ZDownloadManager INSTANCE = new ZDownloadManager();
     }
@@ -116,7 +118,7 @@ public class ZDownloadManager  {
                     @Override
                     public void run() {
                         mZloadInfo.listener.onSuccess(path);
-                        sendDownloadStatus(ZDloader.STOPSELF);
+                        stopService();
                     }
                 });
             }
@@ -190,11 +192,10 @@ public class ZDownloadManager  {
         return false;
     }
 
-    public void deleteDownload() {
+    public void deleteDownload(boolean deleteAll) {
         if (mDownloadTask != null) {
-            mDownloadTask.delete();
+             mDownloadTask.delete(deleteAll);
         }
-
     }
 
     /**
@@ -205,5 +206,10 @@ public class ZDownloadManager  {
         Intent intent = new Intent(mZloadInfo.context, ZLoadService.class);
         intent.putExtra(ZDloader.KEY_STATUS, status);
         mZloadInfo.context.startService(intent);
+    }
+
+    public void stopService() {
+        Intent intent = new Intent(mZloadInfo.context, ZLoadService.class);
+        mZloadInfo.context.stopService(intent);
     }
 }

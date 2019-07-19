@@ -6,7 +6,7 @@ package com.android.downloadlib.processor.entiry;
  */
 
 public class ZDownloadBean {
-    public int progress;
+    public float progress;
     public long totalSize;
     public long downloadSize;
     public String speed;
