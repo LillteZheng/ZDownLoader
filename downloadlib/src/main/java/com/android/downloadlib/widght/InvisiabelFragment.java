@@ -2,6 +2,7 @@ package com.android.downloadlib.widght;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 /**
  * Created by zhengshaorui
@@ -10,6 +11,7 @@ import android.support.v4.app.Fragment;
  */
 
 public class InvisiabelFragment extends Fragment {
+    private static final String TAG = "InvisiabelFragment";
     private LifecyleListener mListener;
 
     public static InvisiabelFragment newInstance() {
@@ -39,10 +41,12 @@ public class InvisiabelFragment extends Fragment {
         if (mListener != null){
             mListener.onStop();
         }
+        Log.d(TAG, "zsr onStop: ");
     }
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG, "zsr onDestroyView: ");
         super.onDestroyView();
         if (mListener != null){
             mListener.onDestroy();

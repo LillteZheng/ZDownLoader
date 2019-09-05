@@ -53,7 +53,11 @@ public class ZDownloadManager  {
     }
 
     public  void updateListener(ZupdateListener listener){
-        mZloadInfo.listener = listener;
+        if (mZloadInfo == null){
+            listener.onError(NetErrorStatus.TASK_DELETE_ABNORMAL,"task has been delete abnormal");
+        }else {
+            mZloadInfo.listener = listener;
+        }
     }
     /**
      * 检查是否可以更新
@@ -185,6 +189,7 @@ public class ZDownloadManager  {
         if (mDownloadTask != null) {
             return mDownloadTask.isRunning();
         }
+
         return false;
     }
 
