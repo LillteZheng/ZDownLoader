@@ -10,7 +10,7 @@ import com.android.downloadlib.processor.entiry.ZDownloadBean;
  */
 
 public interface ZupdateListener {
-    void onSuccess(String path);
+    void onSuccess(String path,String md5Msg);
     void onError(NetErrorStatus errorStatus, String errorMsg);
     void onDownloading(ZDownloadBean bean);
 }

@@ -9,6 +9,7 @@ import com.android.downloadlib.processor.entiry.ZDownloadBean;
 import com.android.downloadlib.processor.entiry.ZLoadInfo;
 import com.android.downloadlib.processor.entiry.ZThreadBean;
 import com.android.downloadlib.processor.server.ZHttpCreate;
+import com.android.downloadlib.utils.MD5Utils;
 import com.android.downloadlib.utils.ZRxTimeUtils;
 
 import java.io.File;
@@ -292,7 +293,8 @@ public class ZDownloadTask {
             if (file.exists()){
                 Log.d(TAG, "zsr --> 本地文件大小: "+file.length()+" 服务器文件大小: "+info.fileLength);
                 if (file.length() == info.fileLength){
-                    mListener.success(info.filePath+File.separator+info.fileName);
+                    String mdMsg = MD5Utils.getFileMD5(file);
+                    mListener.success(info.filePath+File.separator+info.fileName,mdMsg);
                     //删除线程
                     ZDBManager.getInstance().deleteAll();
                     mExecutorService.shutdownNow();
@@ -310,7 +312,7 @@ public class ZDownloadTask {
      * 监听 listener
      */
     interface DownloadListener {
-        void success(String path);
+        void success(String path,String md5Msg);
         void progress(ZDownloadBean bean);
         void error(NetErrorStatus netErrorStatus, String fail);
 

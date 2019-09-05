@@ -117,12 +117,12 @@ public class ZDownloadManager  {
     public void startDownload() {
         mDownloadTask = new ZDownloadTask(mZloadInfo, new ZDownloadTask.DownloadListener() {
             @Override
-            public void success(final String path) {
+            public void success(final String path, final String mdMsg) {
                 //放到UI线程里
                 sHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        mZloadInfo.listener.onSuccess(path);
+                        mZloadInfo.listener.onSuccess(path,mdMsg);
                         stopService();
                     }
                 });
