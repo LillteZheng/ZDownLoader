@@ -46,14 +46,16 @@ public class ZDownloadTask {
     public ZDownloadTask(ZLoadInfo info, DownloadListener listener){
         //初始化数据
         mZloadInfo = info;
-        if (mZloadInfo.fileLength == -1){
-            return;
+        if (mZloadInfo != null) {
+            if (mZloadInfo.fileLength == -1) {
+                return;
+            }
+            mListener = listener;
+            mExecutorService = Executors.newFixedThreadPool(info.threadCount);
+            mDownloadTasks.clear();
+            mFileDownloadSize = 0;
+            configTask(info);
         }
-        mListener = listener;
-        mExecutorService = Executors.newFixedThreadPool(info.threadCount);
-        mDownloadTasks.clear();
-        mFileDownloadSize = 0;
-        configTask(info);
 
     }
 
