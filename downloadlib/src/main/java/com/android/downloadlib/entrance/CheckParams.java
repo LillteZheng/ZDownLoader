@@ -9,7 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.android.downloadlib.processor.entiry.ZloadInfo;
+import com.android.downloadlib.processor.entiry.ZLoadInfo;
 
 import java.io.File;
 
@@ -23,7 +23,7 @@ public class CheckParams {
     public CheckParams() {
     }
 
-    public ZloadInfo check(ZloadInfo info){
+    public ZLoadInfo check(ZLoadInfo info){
         //url肯定是必须的
         if (TextUtils.isEmpty(info.url)){
             throw new RuntimeException("url can not be null");
@@ -33,7 +33,6 @@ public class CheckParams {
         if (TextUtils.isEmpty(info.filePath)){
             boolean isLake = lacksPermission(info.context,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            Log.d(TAG, "zsr --> check: "+isLake);
             if (Build.VERSION.SDK_INT >= 23 && isLake){
                 throw new RuntimeException("you need reuqest WRITE_EXTERNAL_STORAGE");
             }else {
@@ -59,7 +58,7 @@ public class CheckParams {
         return info;
     }
 
-    public ZloadInfo checkJsonUrl(ZloadInfo info){
+    public ZLoadInfo checkJsonUrl(ZLoadInfo info){
         //url肯定是必须的
         if (TextUtils.isEmpty(info.jsonUrl)){
             throw new RuntimeException("jsonUrl can not be null");

@@ -1,6 +1,7 @@
 package com.android.downloadlib.processor.task;
 
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,16 +13,14 @@ import com.android.downloadlib.NetErrorStatus;
 import com.android.downloadlib.entrance.ZDloader;
 import com.android.downloadlib.processor.callback.ZupdateListener;
 import com.android.downloadlib.processor.entiry.ZDownloadBean;
-import com.android.downloadlib.processor.entiry.ZloadInfo;
+import com.android.downloadlib.processor.entiry.ZLoadInfo;
 import com.android.downloadlib.processor.server.ZHttpCreate;
 import com.android.downloadlib.processor.server.ZHttpServer;
-import com.android.downloadlib.utils.ZRxTimeUtils;
 import com.android.downloadlib.utils.ZRxUtils;
 import com.android.downloadlib.utils.ZStorageUtils;
 
 import io.reactivex.observers.ResourceObserver;
 import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 
 /**
@@ -36,7 +35,7 @@ public class ZDownloadManager  {
     private long mLastSize;
     private boolean isRefresh = false;
     private ZDownloadTask mDownloadTask;
-    private ZloadInfo mZloadInfo;
+    private ZLoadInfo mZloadInfo;
     static Handler sHandler = new Handler(Looper.getMainLooper());
 
 
@@ -61,9 +60,10 @@ public class ZDownloadManager  {
      *
      * @param info
      */
-    public void checkAndDownload(ZloadInfo info) {
+    public void checkAndDownload(ZLoadInfo info) {
         mZloadInfo = info;
         long deviceSize = ZStorageUtils.getAvailDiskSize(mZloadInfo.filePath);
+       // Log.d(TAG, "zsr 文件长度: "+mZloadInfo.fileLength);
         if (mZloadInfo.fileLength != -1) {
             if (mZloadInfo.fileLength > deviceSize) {
                 mZloadInfo.listener.onError(NetErrorStatus.CACHE_NOT_ENOUGH, "Cache not enough");
@@ -71,42 +71,47 @@ public class ZDownloadManager  {
                 sendDownloadStatus(ZDloader.START);
             }
         } else {
-
-            mServer.getFileLength(info.url)
-                    .compose(ZRxUtils.<ResponseBody>rxScheduers())
-                    .subscribeWith(new ResourceObserver<ResponseBody>() {
-                        @Override
-                        public void onNext(ResponseBody responseBody) {
-                            long fileLength = responseBody.contentLength();
-                            Log.d(TAG, "zsr onNext: "+fileLength);
-                            if (fileLength > ZStorageUtils.getAvailDiskSize(mZloadInfo.filePath)) {
-                                mZloadInfo.listener.onError(NetErrorStatus.CACHE_NOT_ENOUGH, "Cache not enough");
-                            } else {
-                                mZloadInfo.fileLength = fileLength;
-                                if (mZloadInfo.fileLength != -1) {
-                                    sendDownloadStatus(ZDloader.START);
-                                }else{
-                                    mZloadInfo.listener.onError(NetErrorStatus.GET_LENGTH_FAIL,"content length -1");
-                                }
-
-                            }
-                        }
-
-                        @Override
-                        public void onError(Throwable throwable) {
-                            if (mZloadInfo.listener != null) {
-                                mZloadInfo.listener.onError(NetErrorStatus.FAIL_TO_CONNECT, throwable.toString());
-                            }
-                        }
-
-                        @Override
-                        public void onComplete() {
-
-                        }
-                    });
-
-
+            getFileLengthAndStart();
         }
+    }
+
+    /**
+     * 拿到文件长度和开始下载
+     */
+    @SuppressLint("CheckResult")
+    public void getFileLengthAndStart(){
+        mServer.getFileLength(mZloadInfo.url)
+                .compose(ZRxUtils.<ResponseBody>rxScheduers())
+                .subscribeWith(new ResourceObserver<ResponseBody>() {
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        long fileLength = responseBody.contentLength();
+                      //  Log.d(TAG, "zsr 文件长度2 "+fileLength);
+                        if (fileLength > ZStorageUtils.getAvailDiskSize(mZloadInfo.filePath)) {
+                            mZloadInfo.listener.onError(NetErrorStatus.CACHE_NOT_ENOUGH, "Cache not enough");
+                        } else {
+                            mZloadInfo.fileLength = fileLength;
+                            if (mZloadInfo.fileLength != -1) {
+                                sendDownloadStatus(ZDloader.START);
+                            }else{
+                                mZloadInfo.listener.onError(NetErrorStatus.GET_LENGTH_FAIL,"content length -1");
+                            }
+
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        if (mZloadInfo.listener != null) {
+                            mZloadInfo.listener.onError(NetErrorStatus.FAIL_TO_CONNECT, throwable.toString());
+                        }
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     public void startDownload() {
@@ -138,7 +143,6 @@ public class ZDownloadManager  {
                                 long size = bean.downloadSize - mLastSize;
                                 bean.speed = Formatter.formatFileSize(mZloadInfo.context,size)+"/s";
                                 mZloadInfo.listener.onDownloading(bean);
-                                Log.d(TAG, "zsr run: "+bean.progress);
                                 mLastSize = bean.downloadSize;
                             }
                         }
@@ -159,15 +163,7 @@ public class ZDownloadManager  {
 
             }
         });
-/*
-        ZRxTimeUtils.interval(2000, new ZRxTimeUtils.onRxTimeListener() {
-            @Override
-            public void onNext() {
-                if (mDownloadTask !=null){
-                    mDownloadTask.saveDb();
-                }
-            }
-        });*/
+
     }
 
     public void pauseDownload() {

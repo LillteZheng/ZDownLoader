@@ -32,7 +32,7 @@ public class ZLoadService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null){
             String status = intent.getStringExtra(ZDloader.KEY_STATUS);
-            Log.d(TAG, "zsr --> onStartCommand: "+status);
+          //  Log.d(TAG, "zsr --> onStartCommand: "+status);
             switch(status){
                 case ZDloader.PAUSE:
                     ZDloader.pauseDownload();

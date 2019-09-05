@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+
+    <dbname value="zdownload" />
+
+
+    <version value="2" />
+
+
+    <list>
+        <mapping class="com.android.downloadlib.processor.entiry.ZThreadBean"/>
+    </list>
+
+
+</litepal>

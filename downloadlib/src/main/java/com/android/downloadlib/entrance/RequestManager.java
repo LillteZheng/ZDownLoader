@@ -1,13 +1,15 @@
 package com.android.downloadlib.entrance;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
+import com.android.ZLoadService;
 import com.android.downloadlib.processor.callback.ZJsonListener;
 import com.android.downloadlib.processor.callback.ZupdateListener;
-import com.android.downloadlib.processor.entiry.ZloadInfo;
+import com.android.downloadlib.processor.entiry.ZLoadInfo;
 import com.android.downloadlib.processor.task.ZDownloadManager;
 import com.android.downloadlib.processor.task.ZJsonTask;
 import com.android.downloadlib.widght.InvisiabelFragment;
@@ -20,10 +22,10 @@ import com.android.downloadlib.widght.InvisiabelFragment;
 
 public class RequestManager {
     private static final String TAG = "RequestManager";
-    private ZloadInfo mInfo;
+    private ZLoadInfo mInfo;
 
     public RequestManager() {
-        mInfo = new ZloadInfo();
+        mInfo = new ZLoadInfo();
     }
 
     public RequestManager with(Context context) {
@@ -78,6 +80,8 @@ public class RequestManager {
     public void download(){
         mInfo = new CheckParams().check(mInfo);
         rigister(mInfo);
+        Intent intent = new Intent(mInfo.context, ZLoadService.class);
+        mInfo.context.stopService(intent);
         ZDownloadManager.getInstance().checkAndDownload(mInfo);
     }
 
@@ -98,12 +102,12 @@ public class RequestManager {
     }
 
 
-    public ZloadInfo getInfo(){
+    public ZLoadInfo getInfo(){
         return mInfo;
     }
 
 
-    private void rigister(final ZloadInfo info){
+    private void rigister(final ZLoadInfo info){
         if (info.context instanceof FragmentActivity){
            // Log.d(TAG, "zsr --> rigister: "+info.context);
             FragmentActivity activity = (FragmentActivity) info.context;

@@ -23,7 +23,7 @@ import com.android.downloadlib.processor.entiry.ZDownloadBean;
 
 public class MainActivity extends AppCompatActivity implements ZupdateListener, View.OnClickListener {
     private static final String TAG = "MainActivity";
-    private static final String URL = "https://img-blog.csdnimg.cn/20190104091200408.gif";
+    private static final String URL = "http://dp.igrsservice.com:8080/DP/LT/LTS86EQ1/LTS86EQ1_2.4.1/update.zip";
     private static final String JSONURL = "http://192.168.1.103:9090/new/update.json";
     private TextView mTextView;
     private Button mDownloadBtn;
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
         /**
          * 解析json
          */
-        ZDloader.with(this)
+       /* ZDloader.with(this)
                 .jsonUrl(JSONURL)
                 .jsonListener(new ZJsonListener<FileJson>(FileJson.class) {
                     @Override
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
                         super.response(data);
                         Log.d(TAG, "zsr response: "+data.toString());
                     }
-                }).parseJson();
+                }).parseJson();*/
     }
 
     private void download(){
@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
 
     @Override
     public void onClick(View v) {
+        Log.d(TAG, "zsr onClick: .d"+ZDloader.isDownloading());
         if (ZDloader.isDownloading()){
             ZDloader.pauseDownload();
             mDownloadBtn.setText("已暂停");

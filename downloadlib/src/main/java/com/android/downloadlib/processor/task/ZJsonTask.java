@@ -1,12 +1,7 @@
 package com.android.downloadlib.processor.task;
 
-import android.util.Log;
-
-import com.alibaba.fastjson.JSON;
-import com.android.downloadlib.processor.entiry.ZloadInfo;
+import com.android.downloadlib.processor.entiry.ZLoadInfo;
 import com.android.downloadlib.processor.server.ZHttpCreate;
-
-import java.lang.reflect.Method;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -19,7 +14,7 @@ import retrofit2.Response;
 public class ZJsonTask {
     private static final String TAG = "ZJsonTask";
 
-    public ZJsonTask(final ZloadInfo info) {
+    public ZJsonTask(final ZLoadInfo info) {
         Call<String> call = ZHttpCreate.getService().getJson(info.jsonUrl);
         call.enqueue(new Callback<String>() {
             @Override

@@ -1,17 +1,13 @@
 package com.android.downloadlib.processor.task;
 
-import android.content.Intent;
-import android.media.FaceDetector;
 import android.util.Log;
 import android.webkit.DownloadListener;
 
-import com.android.ZLoadService;
 import com.android.downloadlib.NetErrorStatus;
-import com.android.downloadlib.entrance.ZDloader;
 import com.android.downloadlib.processor.db.ZDBManager;
 import com.android.downloadlib.processor.entiry.ZDownloadBean;
+import com.android.downloadlib.processor.entiry.ZLoadInfo;
 import com.android.downloadlib.processor.entiry.ZThreadBean;
-import com.android.downloadlib.processor.entiry.ZloadInfo;
 import com.android.downloadlib.processor.server.ZHttpCreate;
 import com.android.downloadlib.utils.ZRxTimeUtils;
 
@@ -37,51 +33,61 @@ import retrofit2.Response;
 
 public class ZDownloadTask {
     private static final String TAG = "ZDownloadTask";
-    private long mFileDownloadSize = 0; //方便显示多线程的进度
-    private volatile boolean isPause = false;
-    //private List<DownloadThread> mDownloadTasks = new ArrayList<>();//方便检测多线程是否下载完成
+    //方便显示多线程的进度
+    private volatile long mFileDownloadSize = 0;
     private ExecutorService mExecutorService ;
-    private volatile boolean isDelete = false;
-    private ZloadInfo mZloadInfo;
-
-    private List<DownloadThread> mDownloadTasks = new ArrayList<>();//方便检测多线程是否下载完成
+    private ZLoadInfo mZloadInfo;
+    //方便检测多线程是否下载完成
+    private volatile boolean isClose;
+    private volatile boolean isPause;
+    private List<DownloadThread> mDownloadTasks = new ArrayList<>();
     private DownloadListener mListener;
-    public ZDownloadTask(ZloadInfo info,DownloadListener listener){
+    public ZDownloadTask(ZLoadInfo info, DownloadListener listener){
+        //初始化数据
         mZloadInfo = info;
+        if (mZloadInfo.fileLength == -1){
+            return;
+        }
         mListener = listener;
         mExecutorService = Executors.newFixedThreadPool(info.threadCount);
-        long blocksize = info.fileLength / info.threadCount;
+        mDownloadTasks.clear();
+        mFileDownloadSize = 0;
+        configTask(info);
 
+    }
+
+    /**
+     * 配置初始任务
+     * @param info
+     */
+    private void configTask(ZLoadInfo info) {
+        long blocksize = info.fileLength / info.threadCount;
         List<ZThreadBean> threadBeans = ZDBManager.getInstance().getAllInfo();
+        //数据库中，已经保存了数据
         if (threadBeans != null && threadBeans.size() > 0){
-            mFileDownloadSize = 0;
             for (int i = 0; i < threadBeans.size(); i++) {
                 long end = (i + 1) * blocksize - 1;
-
-                if (i == info.threadCount - 1) { //最后一个除不尽，用文件长度代替
+                //最后一个除不尽，用文件长度代替
+                if (i == info.threadCount - 1) {
                     end = info.fileLength;
                 }
                 ZThreadBean bean = threadBeans.get(i);
-                //Log.d(TAG, "zsr --> ZDownloadTask: "+info.fileLength + bean.toString());
                 bean.startPos += bean.threadLength;
                 bean.endPos = end;
+               // Log.d(TAG, "zsr 数据库存在: "+info.fileLength+" "+info.threadCount+" "+bean.startPos+" "+bean.endPos);
                 mFileDownloadSize += bean.threadLength;
                 DownloadThread downloadthread = new DownloadThread(bean,info);
-                mExecutorService.execute(downloadthread);
                 mDownloadTasks.add(downloadthread);
+                mExecutorService.execute(downloadthread);
             }
         }else {
             //新任务，先删除数据库和本地文件
-            ZDBManager.getInstance().deleteAll();
-            File file = new File(mZloadInfo.filePath,mZloadInfo.fileName);
-            if (file.exists()){
-                file.delete();
-            }
+            deleteCache();
             for (int i = 0; i < info.threadCount; i++) {
                 long start = i * blocksize;
                 long end = (i + 1) * blocksize - 1;
-
-                if (i == info.threadCount - 1) { //最后一个除不尽，用文件长度代替
+                //最后一个除不尽，用文件长度代替
+                if (i == info.threadCount - 1) {
                     end = info.fileLength;
                 }
                 ZThreadBean bean = new ZThreadBean();
@@ -93,21 +99,31 @@ public class ZDownloadTask {
                 //先保存数据库
                 ZDBManager.getInstance().saveOrUpdate(bean);
                 DownloadThread downloadThread = new DownloadThread(bean, info);
-                mExecutorService.execute(downloadThread);
                 mDownloadTasks.add(downloadThread);
+                mExecutorService.execute(downloadThread);
             }
         }
+    }
 
+    /**
+     * 删除本地文件和数据库
+     */
+    private void deleteCache() {
+        ZDBManager.getInstance().deleteAll();
+        File file = new File(mZloadInfo.filePath,mZloadInfo.fileName);
+        if (file.exists()){
+            file.delete();
+        }
     }
 
     public void pause(){
-        isPause = true;
+       isPause = true;
     }
     public void reStart(){
-        isPause = false;
+       isPause = false;
     }
     public boolean isRunning(){
-        return !isPause;
+       return !isPause;
     }
 
 
@@ -117,9 +133,9 @@ public class ZDownloadTask {
         }*/
     }
     public void  delete(final boolean deleteall) {
-        isDelete = true;
+        isClose = true;
         isPause = true;
-        mFileDownloadSize = 0;
+
         final CountDownLatch downLatch = new CountDownLatch(1);
 
         //停止线程需要时间
@@ -128,17 +144,9 @@ public class ZDownloadTask {
             @Override
             public void onNext() {
                 mFileDownloadSize = 0;
-                isDelete = false;
+                isClose = false;
                 ZDownloadManager.getInstance().stopService();
-                if (deleteall) {
-                    ZDBManager.getInstance().deleteAll();
-                    File file = new File(mZloadInfo.filePath, mZloadInfo.fileName);
-                    if (file.exists()) {
-                        file.delete();
-                    }
-                }
-
-
+                deleteCache();
             }
         });
         try {
@@ -146,6 +154,7 @@ public class ZDownloadTask {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
 
     }
 
@@ -157,8 +166,8 @@ public class ZDownloadTask {
         boolean isTheadFinished = false;
       //  boolean isSave = false;
         ZThreadBean bean;
-        ZloadInfo info;
-        public DownloadThread(ZThreadBean bean, ZloadInfo info){
+        ZLoadInfo info;
+        public DownloadThread(ZThreadBean bean, ZLoadInfo info){
             this.bean = bean;
             this.info = info;
         }
@@ -169,10 +178,20 @@ public class ZDownloadTask {
             InputStream is = null;
             RandomAccessFile raf = null;
             try {
+
                 Call<ResponseBody> call = ZHttpCreate.getService().download(bean.url,"bytes=" + bean.startPos + "-" + bean.endPos);
                 Response<ResponseBody> response = call.execute();
                 if (response != null && response.isSuccessful()){
-                    is = response.body().byteStream();
+                    ResponseBody body = response.body();
+                    if (body == null){
+                        mFileDownloadSize = 0;
+                        mListener.error(NetErrorStatus.RESPONSE_IS_NULL,"file break");
+                        //异常说明下载有问题，需要把后台 的server先停止
+                        ZDownloadManager.getInstance().stopService();
+                        deleteCache();
+                        return;
+                    }
+                    is = body.byteStream();
                     //设置本地的存储
                     File file = new File(info.filePath,info.fileName);
                     raf = new RandomAccessFile(file, "rwd");
@@ -180,29 +199,31 @@ public class ZDownloadTask {
                     byte[] bytes = new byte[4 * 1024];
                     int len;
                     while ((len = is.read(bytes)) != -1) {
-                        if (isDelete){
+                        if (isClose){
                             return;
                         }
 
                         if (isPause){
                             //保存到数据库
-                            //  Log.d(TAG, "zsr --> 保存啦: "+bean.toString());
                             ZDBManager.getInstance().saveOrUpdate(bean);
                             return;
                         }
 
 
                         raf.write(bytes, 0, len);
-                        mFileDownloadSize += len;
-
-                        float progress = mFileDownloadSize * 100.0f / info.fileLength;
-                        ZDownloadBean downloadBean = new ZDownloadBean();
-                        downloadBean.progress = progress;
-                        downloadBean.downloadSize = mFileDownloadSize;
-                        downloadBean.totalSize = info.fileLength;
-                        mListener.progress(downloadBean);
                         //记录每个线程的结束点的值
                         bean.threadLength += len;
+                        //这个过程我们希望是线程同步的
+                        synchronized (ZDownloadTask.class) {
+                            mFileDownloadSize += len;
+
+                            float progress = mFileDownloadSize * 100.0f / info.fileLength;
+                            ZDownloadBean downloadBean = new ZDownloadBean();
+                            downloadBean.progress = progress;
+                            downloadBean.downloadSize = mFileDownloadSize;
+                            downloadBean.totalSize = info.fileLength;
+                            mListener.progress(downloadBean);
+                        }
 
                         //不自动保存
                        /* if (isSave){
@@ -215,7 +236,10 @@ public class ZDownloadTask {
                 }else{
                     mFileDownloadSize = 0;
                     mListener.error(NetErrorStatus.RESPONSE_IS_NULL,"file break");
-                    //delete();
+                    //异常说明下载有问题，需要把后台 的server先停止
+                    ZDownloadManager.getInstance().stopService();
+                    deleteCache();
+                    return;
                 }
 
                 checkFinish(info);
@@ -226,9 +250,7 @@ public class ZDownloadTask {
                 String errorMsg = e.toString();
                 //异常之前先保存状态
                 ZDBManager.getInstance().saveOrUpdate(bean);
-                //此时 ispause 和 delete 的状态都要改变
-                isDelete = true;
-                isPause = true;
+
                 //异常说明下载有问题，需要把后台 的server先停止
                 ZDownloadManager.getInstance().stopService();
                 if (errorMsg.contains("Connection timed out")){
@@ -250,10 +272,12 @@ public class ZDownloadTask {
                 }
             }
         }
+
+
     }
 
 
-    private synchronized void checkFinish(ZloadInfo info){
+    private synchronized void checkFinish(ZLoadInfo info){
         boolean isFinish = true;
         for (DownloadThread downloadThread : mDownloadTasks) {
             if (!downloadThread.isTheadFinished){
@@ -264,7 +288,6 @@ public class ZDownloadTask {
         if (isFinish){
             mFileDownloadSize = 0;
             mDownloadTasks.clear();
-            isPause = true;
             File file = new File(info.filePath,info.fileName);
             if (file.exists()){
                 Log.d(TAG, "zsr --> 本地文件大小: "+file.length()+" 服务器文件大小: "+info.fileLength);
@@ -272,10 +295,11 @@ public class ZDownloadTask {
                     mListener.success(info.filePath+File.separator+info.fileName);
                     //删除线程
                     ZDBManager.getInstance().deleteAll();
+                    mExecutorService.shutdownNow();
 
                 }else{
                     mListener.error(NetErrorStatus.FILE_LENGTH_NOT_SAME,"file length not same");
-                    //delete();
+
                 }
             }
         }

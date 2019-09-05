@@ -6,6 +6,8 @@ import com.android.downloadlib.processor.callback.ZupdateListener;
 import com.android.downloadlib.processor.db.ZDBManager;
 import com.android.downloadlib.processor.task.ZDownloadManager;
 
+import org.litepal.LitePal;
+
 
 /**
  * Created by zhengshaorui
@@ -21,7 +23,10 @@ public class  ZDloader {
     private static RequestManager mRequestManager;
     public static RequestManager with(Context context){
         mRequestManager = new RequestManager().with(context);
-        ZDBManager.getInstance().config(context.getApplicationContext());
+        //初始化数据库
+        ZDBManager.getInstance()
+                .config(context.getApplicationContext())
+                .useLitePal(true);
         return new RequestManager().with(context);
     }
     

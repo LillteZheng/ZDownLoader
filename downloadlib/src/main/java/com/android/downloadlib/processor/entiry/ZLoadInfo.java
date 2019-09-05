@@ -11,7 +11,7 @@ import com.android.downloadlib.processor.callback.ZupdateListener;
  * Time on 2018/12/6
  */
 
-public class ZloadInfo {
+public class ZLoadInfo {
     public Context context;
     public String url;
     public String jsonUrl;
@@ -27,7 +27,7 @@ public class ZloadInfo {
 
     @Override
     public String toString() {
-        return "ZloadInfo{" +
+        return "ZLoadInfo{" +
                 "context=" + context +
                 ", url='" + url + '\'' +
                 ", jsonUrl='" + jsonUrl + '\'' +

@@ -6,10 +6,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static String URL = "url";
-    public static String THREADID = "thread_id";
-    public static String THREAD_LENGTH = "thread_length";
-    public static String THREAD_START = "thread_start";
-    public static String THREAD_END = "thread_end";
+    public static String THREADID = "threadId";
+    public static String THREAD_LENGTH = "threadLength";
+    public static String THREAD_START = "startPos";
+    public static String THREAD_END = "endPos";
     private static final String TABLE = "zloader.db";
     public static final String BOOK_TABLE = "zloader";
     private static final String CREATE_TABLE = "create table "+BOOK_TABLE+" ("
@@ -24,7 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
      * @param context
      */
     public DBHelper(Context context) {
-        super(context, TABLE, null, 3); //1为版本号
+        super(context, TABLE, null, 4); //1为版本号
     }
 
 
