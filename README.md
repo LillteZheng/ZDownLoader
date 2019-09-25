@@ -8,6 +8,7 @@
 [原理请参考这篇博客](https://blog.csdn.net/u011418943/article/details/85760069)
 
 更新如下
+- 1.9 : 增加 getJson post 请求
 - 1.8 : 优化数据库，处理从任务列表去除之后，重新下载文件长度为-1的问题
 - 1.6 : 添加异常断电续传，方便下次继续下载；增加删除任务是否删除数据库和文件功能
 - 1.4 : 完善再次进入不会更新UI问题，并添加 json 解析
@@ -45,9 +46,13 @@ if (!ZDloader.isDownloading()) {
 ```
 ## 二、解析 Json
 通过在ZJsonListener的泛型和添加 class 就能自动解析成 Bean 了
+
+** 这里如果填写了 params 或者 paramsMap 则自动解析成 post 请求 **
 ```
 ZDloader.with(this)
         .jsonUrl(JSONURL)
+        //.paramsMap(params)
+        .params("useId","12")
         .jsonListener(new ZJsonListener<FileJson>(FileJson.class) {
             @Override
             public void fail(String errorMsg) {
