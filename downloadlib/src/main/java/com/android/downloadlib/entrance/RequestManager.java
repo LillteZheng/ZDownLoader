@@ -14,6 +14,9 @@ import com.android.downloadlib.processor.task.ZDownloadManager;
 import com.android.downloadlib.processor.task.ZJsonTask;
 import com.android.downloadlib.widght.InvisiabelFragment;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * Created by zhengshaorui
@@ -87,6 +90,20 @@ public class RequestManager {
 
     public RequestManager jsonUrl(String jsonurl){
         mInfo.jsonUrl = jsonurl;
+        if (mInfo.paramsMap == null) {
+            mInfo.paramsMap = new HashMap<>();
+        }
+        mInfo.paramsMap.clear();
+        return this;
+    }
+    public RequestManager paramsMap(Map<String,String> map){
+        mInfo.paramsMap.clear();
+        mInfo.paramsMap.putAll(map);
+        return this;
+    }
+
+    public RequestManager params(String key,String value){
+        mInfo.paramsMap.put(key,value);
         return this;
     }
 

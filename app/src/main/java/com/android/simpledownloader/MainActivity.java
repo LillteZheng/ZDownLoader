@@ -20,11 +20,24 @@ import com.android.downloadlib.processor.callback.ZJsonListener;
 import com.android.downloadlib.processor.callback.ZupdateListener;
 import com.android.downloadlib.processor.entiry.ZDownloadBean;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 
 public class MainActivity extends AppCompatActivity implements ZupdateListener, View.OnClickListener {
     private static final String TAG = "MainActivity";
     private static final String URL = "https://img-blog.csdnimg.cn/20190104091200408.gif";
-    private static final String JSONURL = "http://192.168.1.103:9090/new/update.json";
+    private static final String JSONURL = "http://192.168.0.1:3389/OTA";
     private TextView mTextView;
     private Button mDownloadBtn;
     private TextView mDownloadTv;
@@ -48,9 +61,18 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
         /**
          * 解析json
          */
+
+        Map<String,String> params = new HashMap<>();
+        params.put("useId", "7a57a5a743894a0e");
+        params.put("sys_version", "1.1.1.10");
+        params.put("sys_type", "65");
+        params.put("sys_cloudcode", "1111111111111111111");
+        params.put("ext", "0");
+
         ZDloader.with(this)
                 .jsonUrl(JSONURL)
-                .jsonListener(new ZJsonListener<FileJson>(FileJson.class) {
+                .paramsMap(params)
+                .jsonListener(new ZJsonListener<Root>(Root.class) {
                     @Override
                     public void fail(String errorMsg) {
                         super.fail(errorMsg);
@@ -58,11 +80,13 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
                     }
 
                     @Override
-                    public void response(FileJson data) {
+                    public void response(Root data) {
                         super.response(data);
                         Log.d(TAG, "zsr response: "+data.toString());
                     }
                 }).parseJson();
+
+
     }
 
     private void download(){

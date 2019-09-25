@@ -5,6 +5,8 @@ import android.content.Context;
 import com.android.downloadlib.processor.callback.ZJsonListener;
 import com.android.downloadlib.processor.callback.ZupdateListener;
 
+import java.util.Map;
+
 
 /**
  * Created by zhengshaorui
@@ -20,6 +22,7 @@ public class ZLoadInfo {
     public String fileName;
     public long reFreshTime = 100;
     public long fileLength = -1;
+    public Map<String,String> paramsMap;
     public boolean allowBackDownload = false;
     public ZupdateListener listener = null;
     public ZJsonListener jsonListener = null;

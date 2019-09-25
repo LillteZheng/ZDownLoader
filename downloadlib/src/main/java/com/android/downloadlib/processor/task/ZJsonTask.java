@@ -15,7 +15,13 @@ public class ZJsonTask {
     private static final String TAG = "ZJsonTask";
 
     public ZJsonTask(final ZLoadInfo info) {
-        Call<String> call = ZHttpCreate.getService().getJson(info.jsonUrl);
+        Call<String> call;
+        if (info.paramsMap.size() > 0) {
+            call = ZHttpCreate.getService().getJson(info.jsonUrl,info.paramsMap);
+        }else{
+            call = ZHttpCreate.getService().getJson(info.jsonUrl);
+
+        }
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
