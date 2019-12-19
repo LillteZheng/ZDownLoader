@@ -32,11 +32,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import retrofit2.http.Body;
 
 
 public class MainActivity extends AppCompatActivity implements ZupdateListener, View.OnClickListener {
     private static final String TAG = "MainActivity";
-    private static final String URL = "https://img-blog.csdnimg.cn/20190104091200408.gif";
+    private static final String URL = "http://134.175.242.16/comix/apk/1576227897067_Jianshu-official-4.17.1-2019004171-1573807248.apk";
     private static final String JSONURL = "http://192.168.0.1:3389/OTA";
     private TextView mTextView;
     private Button mDownloadBtn;
@@ -70,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
         params.put("ext", "0");
 
 
+        BodyBean bean = new BodyBean();
+        bean.save();
 
         ZDloader.with(this)
                 .jsonUrl(JSONURL)
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
                     .threadCount(3)
                     .reFreshTime(1000)
                     .allowBackDownload(true)
-                    //.useDb(false) 不适用断点续传，即不适用数据库
+                    .useDb(true) //不使用断点续传，即不适用数据库
                     .listener(MainActivity.this)
                     .download();
         }else {

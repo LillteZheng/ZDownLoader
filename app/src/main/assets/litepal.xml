@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+
+    <dbname value="down" />
+
+
+    <version value="3" />
+
+
+    <list>
+        <mapping class="com.android.simpledownloader.BodyBean"/>
+    </list>
+
+
+</litepal>

@@ -11,7 +11,7 @@ public class Root {
 
     public String url_head;
 
-    public List<BodyEntity> array ;
+    public List<BodyBean> array ;
 
 
     @Override

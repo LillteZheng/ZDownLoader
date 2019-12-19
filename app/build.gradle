@@ -29,5 +29,7 @@ dependencies {
     implementation 'com.github.LillteZheng:okhttplib:v1.1'
     implementation 'com.alibaba:fastjson:1.1.70.android'
     compile project(':downloadlib')
-  //  implementation 'com.github.LillteZheng:ZDownLoader:v2.1'
+   // implementation 'com.github.LillteZheng:ZDownLoader:v2.2'
+    implementation 'org.litepal.android:java:3.0.0'
+
 }
