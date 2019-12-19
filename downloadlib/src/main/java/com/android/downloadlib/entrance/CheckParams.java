@@ -40,8 +40,14 @@ public class CheckParams {
                         + File.separator + "ZDloader";
                 File file = new File(info.filePath);
                 if (!file.exists()) {
-                    file.mkdir();
+                    file.mkdirs();
                 }
+            }
+        }else{
+            //有点话，帮他创建路径
+            File file = new File(info.filePath);
+            if (!file.exists()){
+                file.mkdirs();
             }
         }
         //如果没写文件名，则以url的文件名来识别

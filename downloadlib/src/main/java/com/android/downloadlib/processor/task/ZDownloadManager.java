@@ -67,7 +67,6 @@ public class ZDownloadManager  {
     public void checkAndDownload(ZLoadInfo info) {
         mZloadInfo = info;
         long deviceSize = ZStorageUtils.getAvailDiskSize(mZloadInfo.filePath);
-       // Log.d(TAG, "zsr 文件长度: "+mZloadInfo.fileLength);
         if (mZloadInfo.fileLength != -1) {
             if (mZloadInfo.fileLength > deviceSize) {
                 mZloadInfo.listener.onError(NetErrorStatus.CACHE_NOT_ENOUGH, "Cache not enough");

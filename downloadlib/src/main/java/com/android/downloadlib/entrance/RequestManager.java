@@ -59,8 +59,10 @@ public class RequestManager {
         return this;
     }
 
-
-
+    public RequestManager useDb(boolean useDb){
+        mInfo.useDp = useDb;
+        return this;
+    }
 
 
     public RequestManager reFreshTime(long reFreshTime) {

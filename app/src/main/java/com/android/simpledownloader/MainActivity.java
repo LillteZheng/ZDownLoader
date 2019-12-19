@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
         params.put("sys_cloudcode", "1111111111111111111");
         params.put("ext", "0");
 
+
+
         ZDloader.with(this)
                 .jsonUrl(JSONURL)
                 .paramsMap(params)
@@ -97,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements ZupdateListener, 
                     .threadCount(3)
                     .reFreshTime(1000)
                     .allowBackDownload(true)
+                    //.useDb(false) 不适用断点续传，即不适用数据库
                     .listener(MainActivity.this)
                     .download();
         }else {

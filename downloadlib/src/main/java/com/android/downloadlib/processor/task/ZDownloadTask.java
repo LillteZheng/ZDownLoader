@@ -66,26 +66,51 @@ public class ZDownloadTask {
     private void configTask(ZLoadInfo info) {
         long blocksize = info.fileLength / info.threadCount;
         List<ZThreadBean> threadBeans = ZDBManager.getInstance().getAllInfo();
-        //数据库中，已经保存了数据
-        if (threadBeans != null && threadBeans.size() > 0){
-            for (int i = 0; i < threadBeans.size(); i++) {
-                long end = (i + 1) * blocksize - 1;
-                //最后一个除不尽，用文件长度代替
-                if (i == info.threadCount - 1) {
-                    end = info.fileLength;
+
+        if (info.useDp) {
+            //数据库中，已经保存了数据
+            if (threadBeans != null && threadBeans.size() > 0) {
+                for (int i = 0; i < threadBeans.size(); i++) {
+                    long end = (i + 1) * blocksize - 1;
+                    //最后一个除不尽，用文件长度代替
+                    if (i == info.threadCount - 1) {
+                        end = info.fileLength;
+                    }
+                    ZThreadBean bean = threadBeans.get(i);
+                    bean.startPos += bean.threadLength;
+                    bean.endPos = end;
+                    // Log.d(TAG, "zsr 数据库存在: "+info.fileLength+" "+info.threadCount+" "+bean.startPos+" "+bean.endPos);
+                    mFileDownloadSize += bean.threadLength;
+                    DownloadThread downloadthread = new DownloadThread(bean, info);
+                    mDownloadTasks.add(downloadthread);
+                    mExecutorService.execute(downloadthread);
                 }
-                ZThreadBean bean = threadBeans.get(i);
-                bean.startPos += bean.threadLength;
-                bean.endPos = end;
-               // Log.d(TAG, "zsr 数据库存在: "+info.fileLength+" "+info.threadCount+" "+bean.startPos+" "+bean.endPos);
-                mFileDownloadSize += bean.threadLength;
-                DownloadThread downloadthread = new DownloadThread(bean,info);
-                mDownloadTasks.add(downloadthread);
-                mExecutorService.execute(downloadthread);
+            } else {
+                //新任务，先删除数据库和本地文件
+                deleteCache();
+                for (int i = 0; i < info.threadCount; i++) {
+                    long start = i * blocksize;
+                    long end = (i + 1) * blocksize - 1;
+                    //最后一个除不尽，用文件长度代替
+                    if (i == info.threadCount - 1) {
+                        end = info.fileLength;
+                    }
+                    ZThreadBean bean = new ZThreadBean();
+                    bean.url = info.url;
+                    bean.startPos = start;
+                    bean.endPos = end;
+                    bean.threadId = i;
+                    bean.name = info.fileName;
+                    //先保存数据库
+                    ZDBManager.getInstance().saveOrUpdate(bean);
+                    DownloadThread downloadThread = new DownloadThread(bean, info);
+                    mDownloadTasks.add(downloadThread);
+                    mExecutorService.execute(downloadThread);
+                }
             }
         }else {
-            //新任务，先删除数据库和本地文件
-            deleteCache();
+            //不适用数据库
+            mFileDownloadSize = 0;
             for (int i = 0; i < info.threadCount; i++) {
                 long start = i * blocksize;
                 long end = (i + 1) * blocksize - 1;
@@ -99,8 +124,7 @@ public class ZDownloadTask {
                 bean.endPos = end;
                 bean.threadId = i;
                 bean.name = info.fileName;
-                //先保存数据库
-                ZDBManager.getInstance().saveOrUpdate(bean);
+
                 DownloadThread downloadThread = new DownloadThread(bean, info);
                 mDownloadTasks.add(downloadThread);
                 mExecutorService.execute(downloadThread);

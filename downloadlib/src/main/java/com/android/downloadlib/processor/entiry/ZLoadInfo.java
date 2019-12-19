@@ -26,6 +26,7 @@ public class ZLoadInfo {
     public boolean allowBackDownload = false;
     public ZupdateListener listener = null;
     public ZJsonListener jsonListener = null;
+    public boolean useDp;
 
 
     @Override
