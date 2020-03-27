@@ -1,3 +1,6 @@
+
+不再修护，使用新库 [AppUpdate 支持检查版本，在线更新](https://github.com/LillteZheng/AppUpdate/blob/master/README.md)
+
 # ZDownLoader
 
 开发中，我们常常会需要有apk升级，或者下载某个文件的问题。所以这里就写了个通用的文件下载的功能 **ZDloader**。通过这篇文章你将看到
